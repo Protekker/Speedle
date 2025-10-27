@@ -4,25 +4,47 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
 
 int main(){
     // string correctword = "PLUMP";
-    vector<string> words = {"APPLE","PLUMP","COULD","SHOWS","PHONE"};
-    // vector<int> v = {0, 1, 2, 3, 4};
+    // int wordlen;
+    // cin >> wordlen;
+    ifstream MyReadFile("speedlewords.txt");
+    if (!MyReadFile.is_open()){
+        cout << "Unable to open file." << endl;
+        return 1;
+    }
+    vector<string> words;
+    string line;
+    int lineCount = 0;
+    while(getline(MyReadFile, line)){ 
+        lineCount++; 
+        transform(line.begin(),line.end(),line.begin(), ::toupper);
+        words.push_back(line);
+    }
+    MyReadFile.close();
     random_device random_device;
     mt19937 engine{random_device()};
-    uniform_int_distribution<int> dist(0, words.size() - 1);
+    uniform_int_distribution<int> dist(0, words.size() - 1); 
     int random_element = dist(engine);
-    string correctword = words.at(random_element);
+    string correctword = words.at(random_element); //words.at(random_element)
+    // vector<string> words = {"APPLE","PLUMP","COULD","SHOWS","PHONE"};
+    // vector<int> v = {0, 1, 2, 3, 4};
     // string correctword = words.at(randomIndex);
     string guess;
     int lives = 6;
     cout << "Enter a five letter word (CAPS)\n";
     getline(cin, guess);
     transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
+    // transform(guess.begin(), guess.end(), guess.begin(), ::tolower);
+    auto it = find(words.begin(),words.end(),guess);
+    if (it == words.end()){
+        cout << "Word not in dictionary, retry\n";
+    }
     // cin >> guess;
     while(guess != correctword && lives > 0){
         if (guess.length() == 5){
@@ -39,16 +61,24 @@ int main(){
                     break;
                 }
                 cout << "\n";
-                getline(std::cin, guess);
+                getline(cin, guess);
                 transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
-
+                // transform(guess.begin(), guess.end(), guess.begin(), ::tolower);
+                auto it = find(words.begin(),words.end(),guess);
+                if (it == words.end()){
+                    cout << "Word not in dictionary, retry\n";
+                }
                 // cin >> guess;
         }
         else{
-            cout << "Not long enough, enter five letters\n";
-            getline(cin, guess);
-            transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
-
+            cout << "Enter five letters\n";
+                getline(cin, guess);
+                transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
+                // transform(guess.begin(), guess.end(), guess.begin(), ::tolower);
+                auto it = find(words.begin(),words.end(),guess);
+                if (it == words.end()){
+                    cout << "Word not in dictionary, retry\n";
+                }
             // cin >> guess; //make more readable by checking this first and the next by itself not nested if loop
         }
     }
@@ -57,7 +87,7 @@ int main(){
         cout << "\nWinner!";
     }
     else{
-        cout << "\nBetter luck next time";
+        cout << "\nBetter luck next time, the correct word was: " << correctword;
     }
 }
 
