@@ -43,4 +43,5 @@ if letter correct make green, else yellow.
 6 attemps, display word at the end
 
 Have the word be chosen on random from a list of words 
+Testing if push worked
 */
