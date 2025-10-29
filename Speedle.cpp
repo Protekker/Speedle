@@ -143,6 +143,9 @@ int main(){
 
     string guess;
     int lives = 6; //Amount of tries, to be changed to the infinite mode
+    // string name;
+    cout << "Enter Username: ";
+    // cin << name;
     cout << "Enter a five letter word\n";
 
     /*This part is the game loop which checks if correct word has been guessed otherwise display the word again but with colorcoding:
