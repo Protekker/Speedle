@@ -10,8 +10,8 @@
 #include <thread>
 using namespace std;
 
-struct Timer
 
+struct Timer
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> start,end;
     std::chrono::duration<float> duration;
@@ -24,8 +24,8 @@ struct Timer
     {
         end = std::chrono::high_resolution_clock::now();
         duration = end-start;
-        float ms = duration.count()*1000.0f;
-        std::cout << "Speedle time " << ms << " ms" << std::endl;
+        float s = duration.count()*1.00f;
+        std::cout << "Speedle time " << s << " s" << std::endl;
     }
 };
 
@@ -44,21 +44,6 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
             cout << "\nWinner with " << (lives-1) << " lives remaining!" << endl;
             break;
         }
-        // if (guess.length() == 5 && it != words.end()){
-        //     for(int i=0;i<5;i++)
-        //         if (guess[i] == correctword[i]) //maybe fix so that if letter only occurs but guessed twice make the other white ?! check real
-        //             cout << "\033[32m" << guess[i] << "\033[0m"; // green
-        //         else if (correctword.find(guess[i]) != string::npos )
-        //             cout << "\033[33m" << guess[i] << "\033[0m"; // yellow
-        //         else
-        //             cout << "\033[37m" << guess[i] << "\033[0m"; // white
-        //         lives--;
-        //         if (lives == 0){
-        //             cout << "\nYOU LOST";
-        //             break;
-        //         }
-        //         cout << "\n";
-        // }
         if (guess.length() == 5 && it != words.end()){
             //Create arrays to track states
             char colors[3]; //'G' = green, 'Y' = yellow, 'W' = white
@@ -87,14 +72,14 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
                 }
             }
             
-            // Display with colors
+            //Display with colors
             for(int i = 0; i < 5; i++) {
                 if (colors[i] == 'G')
-                    cout << "\033[32m" << guess[i] << "\033[0m"; // green
+                    cout << "\033[32m" << guess[i] << "\033[0m"; //green
                 else if (colors[i] == 'Y')
-                    cout << "\033[33m" << guess[i] << "\033[0m"; // yellow
+                    cout << "\033[33m" << guess[i] << "\033[0m"; //yellow
                 else
-                    cout << "\033[37m" << guess[i] << "\033[0m"; // white
+                    cout << "\033[37m" << guess[i] << "\033[0m"; //white
             }
             
             lives--;
@@ -153,8 +138,8 @@ int main(){
     mt19937 engine{random_device()};
     uniform_int_distribution<int> dist(0, correctWords.size() - 1); 
     int random_element = dist(engine);
-    // string correctword = correctWords.at(random_element); 
-    string correctword = "APPLE";
+    string correctword = correctWords.at(random_element); 
+    // string correctword = "APPLE";
 
     string guess;
     int lives = 6; //Amount of tries, to be changed to the infinite mode
@@ -168,10 +153,5 @@ int main(){
 }
 
 /* TODO
-User enter 5 letter word else not ok
-if letter correct make green, else yellow.
-6 attemps, display word at the end
-
-Have the word be chosen on random from a list of words 
-Testing if push worked
+Make a leaderboard for attempts and time.
 */
