@@ -1,0 +1,86 @@
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+#include <random>
+#include <algorithm>
+#include <fstream>
+#include <chrono>
+
+using namespace std;
+
+
+int main(){
+    //First part is reading file and putting the words in a vector in all uppercase
+    ifstream MyReadFile("speedlewords.txt"); //Read file
+    if (!MyReadFile.is_open()){ //Check if openable
+        cout << "Unable to open file." << endl;
+        return 1;
+    }
+    vector<string> words; //Define a vector (dynamic array)
+    string line;
+    int lineCount = 0;
+    while(getline(MyReadFile, line)){ //Go through each line
+        lineCount++; //Count lines not used rn.
+        transform(line.begin(),line.end(),line.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
+        words.push_back(line); //Put them in the vector
+    }
+    MyReadFile.close(); 
+    //This part randomizes and picks element at random position from words.
+    random_device random_device; //
+    mt19937 engine{random_device()};
+    uniform_int_distribution<int> dist(0, words.size() - 1); 
+    int random_element = dist(engine);
+    string correctword = words.at(random_element); 
+    string guess;
+    int lives = 6; //Amount of tries, to be changed to the infinite mode
+    cout << "Enter a five letter word (CAPS)\n";
+
+    /*This part is the game loop which checks if correct word has been guessed otherwise display the word again but with colorcoding:
+    GREEN correct and correct place
+    YELLOW correct but incorrect place
+    WHITE incorrect and incorrect pace */
+
+    while(guess != correctword && lives > 0){
+        getline(cin, guess); //Take input and store in string guess
+        transform(guess.begin(), guess.end(), guess.begin(), ::toupper); //Transform begining to end starting at begining make touppercase
+        auto it = find(words.begin(),words.end(),guess); //Check if guess in word
+        if (it == words.end()){ //if it is the end of the list, "out of range" then it isn't in the dictionary
+            cout << "Word not in dictionary, retry\n";
+        }
+        if (guess.length() == 5 && it != words.end()){
+            for(int i=0;i<5;i++)
+                if (guess[i] == correctword[i])
+                    cout << "\033[32m" << guess[i] << "\033[0m"; // green
+                else if (correctword.find(guess[i]) != string::npos)
+                    cout << "\033[33m" << guess[i] << "\033[0m"; // yellow
+                else
+                    cout << "\033[37m" << guess[i] << "\033[0m"; // white
+                lives--;
+                if (lives == 0){
+                    cout << "\nYOU LOST";
+                    break;
+                }
+                cout << "\n";
+        }
+        else{
+            cout << "Enter valid five letter word\n";
+        }
+    }
+    if (guess == correctword){
+        cout << "\033[32m" << correctword << "\033[0m";
+        cout << "\nWinner!";
+    }
+    else{
+        cout << "\nBetter luck next time, the correct word was: " << correctword;
+    }
+}
+
+/* TODO
+User enter 5 letter word else not ok
+if letter correct make green, else yellow.
+6 attemps, display word at the end
+
+Have the word be chosen on random from a list of words 
+Testing if push worked
+*/
