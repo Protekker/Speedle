@@ -1,3 +1,4 @@
+//Speedle by Jakob 2025
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
@@ -9,27 +10,29 @@
 #include <thread>
 using namespace std;
 
-// struct Timer
-// {
-//     std::chrono::time_point<std::chrono::steady_clock> start,end;
-//     std::chrono::duration<float> duration;
-//     Timer() //constructor
-//     {
-//         start = std::chrono::high_resolution_clock::now();
-//     }
+struct Timer
 
-//     ~Timer() //destructor
-//     {
-//         end = std::chrono::high_resolution_clock::now();
-//         duration = end-start;
-//         float ms = duration.count()*1000.0f;
-//         std::cout << "Speedle time " << ms << " ms" << std::endl;
-//     }
-// };
+{
+    std::chrono::time_point<std::chrono::high_resolution_clock> start,end;
+    std::chrono::duration<float> duration;
+    Timer() //constructor
+    {
+        start = std::chrono::high_resolution_clock::now();
+    }
+
+    ~Timer() //destructor
+    {
+        end = std::chrono::high_resolution_clock::now();
+        duration = end-start;
+        float ms = duration.count()*1000.0f;
+        std::cout << "Speedle time " << ms << " ms" << std::endl;
+    }
+};
 
 void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words)
 {
-        while(guess != correctword && lives > 0){
+    Timer timer;
+    while(guess != correctword && lives > 0){
         getline(cin, guess); //Take input and store in string guess
         transform(guess.begin(), guess.end(), guess.begin(), ::toupper); //Transform begining to end starting at begining make touppercase
         auto it = find(words.begin(),words.end(),guess); //Check if guess in word
@@ -37,26 +40,77 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
             cout << "Word not in dictionary, retry\n";
         }
         if (guess == correctword){
+            cout << "\033[32m" << correctword << "\033[0m";
+            cout << "\nWinner with " << (lives-1) << " lives remaining!" << endl;
             break;
         }
+        // if (guess.length() == 5 && it != words.end()){
+        //     for(int i=0;i<5;i++)
+        //         if (guess[i] == correctword[i]) //maybe fix so that if letter only occurs but guessed twice make the other white ?! check real
+        //             cout << "\033[32m" << guess[i] << "\033[0m"; // green
+        //         else if (correctword.find(guess[i]) != string::npos )
+        //             cout << "\033[33m" << guess[i] << "\033[0m"; // yellow
+        //         else
+        //             cout << "\033[37m" << guess[i] << "\033[0m"; // white
+        //         lives--;
+        //         if (lives == 0){
+        //             cout << "\nYOU LOST";
+        //             break;
+        //         }
+        //         cout << "\n";
+        // }
         if (guess.length() == 5 && it != words.end()){
-            for(int i=0;i<5;i++)
-                if (guess[i] == correctword[i])
+            //Create arrays to track states
+            char colors[3]; //'G' = green, 'Y' = yellow, 'W' = white
+            bool used[5] = {false}; //Track which letters in correctword are used
+            
+            //First pass: Mark all greens
+            for(int i = 0; i < 5; i++) {
+                if (guess[i] == correctword[i]) {
+                    colors[i] = 'G';
+                    used[i] = true;
+                } else {
+                    colors[i] = 'W'; // Default to white
+                }
+            }
+            
+            // Second pass: Mark yellows
+            for(int i = 0; i < 5; i++) {
+                if (colors[i] == 'W') { // Only check non-green letters
+                    for(int j = 0; j < 5; j++) {
+                        if (!used[j] && guess[i] == correctword[j]) {
+                            colors[i] = 'Y';
+                            used[j] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Display with colors
+            for(int i = 0; i < 5; i++) {
+                if (colors[i] == 'G')
                     cout << "\033[32m" << guess[i] << "\033[0m"; // green
-                else if (correctword.find(guess[i]) != string::npos)
+                else if (colors[i] == 'Y')
                     cout << "\033[33m" << guess[i] << "\033[0m"; // yellow
                 else
                     cout << "\033[37m" << guess[i] << "\033[0m"; // white
-                lives--;
-                if (lives == 0){
-                    cout << "\nYOU LOST";
-                    break;
-                }
-                cout << "\n";
+            }
+            
+            lives--;
+            if (lives == 0){
+                cout << "\nYOU LOST";
+                break;
+            }
+            cout << "\n";
         }
         else{
             cout << "Enter valid five letter word\n";
         }
+
+    }
+    if(guess != correctword){
+        cout << "\nBetter luck next time, the correct word was: " << correctword << "\n";
     }
 }
 
@@ -101,6 +155,7 @@ int main(){
     int random_element = dist(engine);
     // string correctword = correctWords.at(random_element); 
     string correctword = "APPLE";
+
     string guess;
     int lives = 6; //Amount of tries, to be changed to the infinite mode
     cout << "Enter a five letter word\n";
@@ -110,14 +165,6 @@ int main(){
     YELLOW correct but incorrect place
     WHITE incorrect and incorrect pace */
     GameLoop(guess,correctword,lives,words); //Implemented the loop in a function for readability
-
-    if (guess == correctword){
-        cout << "\033[32m" << correctword << "\033[0m";
-        cout << "\nWinner with " << lives << " lives remaining!";
-    }
-    else{
-        cout << "\nBetter luck next time, the correct word was: " << correctword;
-    }
 }
 
 /* TODO
