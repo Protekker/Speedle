@@ -32,13 +32,33 @@ struct Timer
 void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words)
 {
     Timer timer;
+    vector<char> alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M',
+                            'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     while(guess != correctword && lives > 0){
         getline(cin, guess); //Take input and store in string guess
         transform(guess.begin(), guess.end(), guess.begin(), ::toupper); //Transform begining to end starting at begining make touppercase
+
         auto it = find(words.begin(),words.end(),guess); //Check if guess in word
         if (it == words.end()){ //if it is the end of the list, "out of range" then it isn't in the dictionary
             cout << "Word not in dictionary, retry\n";
         }
+        else{
+            vector<char> usedletters; 
+        for(int i=0;i<guess.size();i++){
+            usedletters.push_back(guess[i]);
+        };
+        // string usedletterString(usedletters.begin(),usedletters.end());
+        // cout << usedletterString << endl;
+
+        alphabet.erase(
+            remove_if(alphabet.begin(), alphabet.end(),
+                    [&](char c){ return guess.find(c) != string::npos; }),
+            alphabet.end()
+        );
+        string alphabetString(alphabet.begin(),alphabet.end());
+        cout << "Letters not used: " << alphabetString << endl;
+        }
+        
         if (guess == correctword){
             cout << "\033[32m" << correctword << "\033[0m";
             cout << "\nWinner with " << (lives-1) << " lives remaining!" << endl;
@@ -140,11 +160,21 @@ int main(){
     int random_element = dist(engine);
     string correctword = correctWords.at(random_element); 
     // string correctword = "APPLE";
-
+    
+    // usedletters.push_back(guess);
+    // string guess2;
+    // getline(cin,guess2);
+    // usedletters.push_back(guess2);
+    // for (const char& c : usedletters){
+    //     cout << c;
+    // };
+    // sort(usedletters.begin(),usedletters.end());
+    // cout << usedletters;
     string guess;
+
     int lives = 6; //Amount of tries, to be changed to the infinite mode
     // string name;
-    cout << "Enter Username: ";
+    // cout << "Enter Username: ";
     // cin << name;
     cout << "Enter a five letter word\n";
 
@@ -157,4 +187,10 @@ int main(){
 
 /* TODO
 Make a leaderboard for attempts and time.
+show letters used and unused different colors.
+Move function to other file
+
+implementation of letters used:
+1. Show all letters in alphabet
+2. if used, display but not the ones in used list
 */
