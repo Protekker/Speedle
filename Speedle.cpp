@@ -37,12 +37,23 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
     while(guess != correctword && lives > 0){
         getline(cin, guess); //Take input and store in string guess
         transform(guess.begin(), guess.end(), guess.begin(), ::toupper); //Transform begining to end starting at begining make touppercase
-
+        
         auto it = find(words.begin(),words.end(),guess); //Check if guess in word
         if (it == words.end()){ //if it is the end of the list, "out of range" then it isn't in the dictionary
             cout << "Word not in dictionary, retry\n";
         }
         else{
+        if (guess == correctword){
+            lives--;
+            cout << "\033[32m" << correctword << "\033[0m";
+            cout << "\nWinner with " << lives << " lives remaining!" << endl;
+            break;
+        }
+        lives--;
+        if (lives == 0){
+            cout << "\nYOU LOST";
+            break;
+        }
             vector<char> usedletters; 
         for(int i=0;i<guess.size();i++){
             usedletters.push_back(guess[i]);
@@ -57,13 +68,9 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
         );
         string alphabetString(alphabet.begin(),alphabet.end());
         cout << "Letters not used: " << alphabetString << endl;
+        cout << "Lives left: " << lives << endl;
         }
         
-        if (guess == correctword){
-            cout << "\033[32m" << correctword << "\033[0m";
-            cout << "\nWinner with " << (lives-1) << " lives remaining!" << endl;
-            break;
-        }
         if (guess.length() == 5 && it != words.end()){
             //Create arrays to track states
             char colors[3]; //'G' = green, 'Y' = yellow, 'W' = white
@@ -102,11 +109,7 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
                     cout << "\033[37m" << guess[i] << "\033[0m"; //white
             }
             
-            lives--;
-            if (lives == 0){
-                cout << "\nYOU LOST";
-                break;
-            }
+            
             cout << "\n";
         }
         else{
@@ -121,64 +124,82 @@ void GameLoop(string &guess,string &correctword,int &lives,vector<string>& words
 
 int main(){
     //First part is reading file and putting the words that are guessable in a vector in all uppercase
-    ifstream MyReadFile("speedlewords.txt"); //Read file
-    if (!MyReadFile.is_open()){ //Check if openable
-        cout << "Unable to open file." << endl;
-        return 1;
-    }
-    vector<string> words; //Define a vector (dynamic array)
-    string line;
-    int lineCount = 0;
-    while(getline(MyReadFile, line)){ //Go through each line
-        lineCount++; //Count lines not used rn.
-        transform(line.begin(),line.end(),line.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
-        words.push_back(line); //Put them in the vector
-    }
-    MyReadFile.close(); 
-
-    //Now the words that can be chosen
-    ifstream MyReadFile2("realisticguesses.txt"); //Read file
-    if (!MyReadFile2.is_open()){ //Check if openable
-        cout << "Unable to open file." << endl;
-        return 1;
-    }
+    //Now the words that can be chosen english or swedish
     vector<string> correctWords; //Define a vector (dynamic array) correct words
-    string correctLine;
-    int lineCount2 = 0;
-    while(getline(MyReadFile2, correctLine)){ //Go through each line
-        lineCount2++; //Count lines not used rn.
-        transform(correctLine.begin(),correctLine.end(),correctLine.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
-        correctWords.push_back(correctLine); //Put them in the vector
+    vector<string> words; //Define a vector (dynamic array)
+    cout << "Enter a language (Swedish or English)" << endl;
+    string language;
+    getline(cin,language);
+    if (language == "English"){
+        ifstream MyReadFile("speedlewords.txt"); //Read file
+        if (!MyReadFile.is_open()){ //Check if openable
+            cout << "Unable to open file." << endl;
+            return 1;
+        }
+        string line;
+        int lineCount = 0;
+        while(getline(MyReadFile, line)){ //Go through each line
+            lineCount++; //Count lines not used rn.
+            transform(line.begin(),line.end(),line.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
+            words.push_back(line); //Put them in the vector
+        }
+        MyReadFile.close(); 
+
+        ifstream MyReadFile2("english.txt"); //Read file
+        if (!MyReadFile2.is_open()){ //Check if openable
+            cout << "Unable to open file." << endl;
+            return 1;
+        }
+        // vector<string> correctWords; //Define a vector (dynamic array) correct words
+        string correctLine;
+        int lineCount2 = 0;
+        while(getline(MyReadFile2, correctLine)){ //Go through each line
+            lineCount2++; //Count lines not used rn.
+            transform(correctLine.begin(),correctLine.end(),correctLine.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
+            correctWords.push_back(correctLine); //Put them in the vector
+        }
+        MyReadFile2.close(); 
     }
-    MyReadFile2.close(); 
-
-
+    if (language == "Swedish"){
+        ifstream MyReadFile("swedish.txt"); //Read file
+        if (!MyReadFile.is_open()){ //Check if openable
+            cout << "Unable to open file." << endl;
+            return 1;
+        }
+        string line;
+        int lineCount = 0;
+        while(getline(MyReadFile, line)){ //Go through each line
+            lineCount++; //Count lines not used rn.
+            transform(line.begin(),line.end(),line.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
+            words.push_back(line); //Put them in the vector
+        }
+        MyReadFile.close(); 
+        
+        ifstream MyReadFile2("swedish.txt"); //Read file
+        if (!MyReadFile2.is_open()){ //Check if openable
+            cout << "Unable to open file." << endl;
+            return 1;
+        }
+        // vector<string> correctWords; //Define a vector (dynamic array) correct words
+        string correctLine;
+        int lineCount2 = 0;
+        while(getline(MyReadFile2, correctLine)){ //Go through each line
+            lineCount2++; //Count lines not used rn.
+            transform(correctLine.begin(),correctLine.end(),correctLine.begin(), ::toupper); //Read all lines and transform to uppercase since all were lower
+            correctWords.push_back(correctLine); //Put them in the vector
+        }
+        MyReadFile2.close(); 
+    }
     //This part randomizes and picks element at random position from words.
     random_device random_device; //
     mt19937 engine{random_device()};
     uniform_int_distribution<int> dist(0, correctWords.size() - 1); 
     int random_element = dist(engine);
     string correctword = correctWords.at(random_element); 
-    // string correctword = "APPLE";
-    
-    // usedletters.push_back(guess);
-    // string guess2;
-    // getline(cin,guess2);
-    // usedletters.push_back(guess2);
-    // for (const char& c : usedletters){
-    //     cout << c;
-    // };
-    // sort(usedletters.begin(),usedletters.end());
-    // cout << usedletters;
+
     string guess;
-
     int lives = 6; //Amount of tries, to be changed to the infinite mode
-    // string name;
-    // cout << "Enter Username: ";
-    // cin << name;
-    cout << "Enter a five letter word\n";
-
-    /*This part is the game loop which checks if correct word has been guessed otherwise display the word again but with colorcoding:
+    cout << "Enter a five letter word, you have: " << lives << " lives" << endl;    /*This part is the game loop which checks if correct word has been guessed otherwise display the word again but with colorcoding:
     GREEN correct and correct place
     YELLOW correct but incorrect place
     WHITE incorrect and incorrect pace */
